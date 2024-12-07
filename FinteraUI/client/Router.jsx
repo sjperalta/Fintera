@@ -5,7 +5,6 @@ import Statistics from "./pages/statistics";
 import Analytics from "./pages/analytics";
 import Transaction from "./pages/Transaction";
 import MyWallet from "./pages/myWallet";
-import Inbox from "./pages/inbox";
 import Projects from "./pages/projects";
 import Users from "./pages/users";
 import Calender from "./pages/calender";
@@ -18,10 +17,6 @@ import ComingSoon from "./pages/commingSoon";
 import Error from "./pages/error";
 import Layout from "./component/layout";
 import PersonalInfo from "./pages/settings/personal-info";
-import Notification from "./pages/settings/notifaction";
-import ProgramAndResources from "./pages/settings/program&resourses";
-import Payment from "./pages/settings/payment";
-import Faq from "./pages/settings/faq";
 import Security from "./pages/settings/security";
 import TermsAndCondition from "./pages/settings/Terms&condition";
 import HomeFive from "./pages/homeFive";
@@ -64,10 +59,6 @@ const router = createBrowserRouter([
         element: <Transaction />,
       },
       {
-        path: "/messages",
-        element: <Inbox />,
-      },
-      {
         path: "/projects",
         element: <Projects />,
       },
@@ -88,28 +79,12 @@ const router = createBrowserRouter([
         element: <Calender />,
       },
       {
-        path: "/settings",
+        path: "/settings/user/:userId",
         Component: Settings,
         children: [
           {
             index: true,
             element: <PersonalInfo />,
-          },
-          {
-            path: "notification",
-            element: <Notification />,
-          },
-          {
-            path: "program&resources",
-            element: <ProgramAndResources />,
-          },
-          {
-            path: "payment",
-            element: <Payment />,
-          },
-          {
-            path: "faq",
-            element: <Faq />,
           },
           {
             path: "security",

@@ -47,7 +47,7 @@ function Project({ project }) {
         <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
           <div className="flex items-center gap-5">
             <Link
-              to="/settings"
+              to={`/projects/${id}/lots`}
               className="text-sm font-medium text-success-300"
             >
               Editar
@@ -59,7 +59,7 @@ function Project({ project }) {
               Ver Lotes
             </Link>
             <Link
-              to="/settings"
+              to={`/projects/${id}/reports`}
               className="text-sm font-medium text-success-300"
             >
               Reportes

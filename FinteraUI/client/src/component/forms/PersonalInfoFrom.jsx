@@ -1,177 +1,190 @@
-function PersonalInfoFrom() {
+import { useEffect, useState } from "react";
+import { API_URL } from "./../../../config"; // Update the path as needed
+import { getToken } from "./../../../auth"; // Update the path as needed
+import PropTypes from "prop-types";
+
+function PersonalInfoForm({ userId }) {
+  const [user, setUser] = useState({
+    full_name: "",
+    phone: "",
+    email: "",
+    cedula: "",
+    rtn: "",
+  });
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const token = getToken(); // Retrieve token from auth helper
+
+  useEffect(() => {
+    if (!userId) {
+      setError("User ID is not provided or invalid.");
+      setLoading(false);
+      return;
+    }
+
+    const fetchUser = async () => {
+      try {
+        const response = await fetch(`${API_URL}/api/v1/users/${userId}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`, // Include token for authentication
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch user data");
+        }
+
+        const data = await response.json();
+        setUser({
+          full_name: data.full_name || "",
+          phone: data.phone || "",
+          email: data.email || "",
+          cedula: data.cedula || "",
+          rtn: data.rtn || "",
+        });
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, [token, userId]);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setUser((prevUser) => ({
+      ...prevUser,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!userId) {
+      setError("Cannot update user without a valid User ID.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/api/v1/users/${userId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(user),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update user data");
+      }
+
+      alert("Profile updated successfully");
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  if (!userId) {
+    return <p className="text-red-500">User ID is required to load data.</p>;
+  }
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p className="text-red-500">Error: {error}</p>;
+
   return (
     <div className="2xl:col-span-8 xl:col-span-7">
       <h3 className="text-2xl font-bold pb-5 text-bgray-900 dark:text-white dark:border-darkblack-400 border-b border-bgray-200">
-        Personal Information's
+        Información Personal
       </h3>
       <div className="mt-8">
-        <form action="">
+        <form onSubmit={handleSubmit}>
           <div className="grid 2xl:grid-cols-2 grid-cols-1 gap-6">
             <div className="flex flex-col gap-2">
               <label
-                htmlFor="fname"
-                className="text-base text-bgray-600 dark:text-bgray-50  font-medium"
+                htmlFor="full_name"
+                className="text-base text-bgray-600 dark:text-bgray-50 font-medium"
               >
-                First Name
+                Nombre Completo
               </label>
               <input
                 type="text"
+                name="full_name"
+                value={user.full_name}
+                onChange={handleInputChange}
                 className="bg-bgray-50 dark:bg-darkblack-500 dark:text-white p-4 rounded-lg h-14 border-0 focus:border focus:border-success-300 focus:ring-0"
-                name="fname"
-              />
-            </div>
-            <div className="flex flex-col gap-2">
-              <label
-                htmlFor="lname"
-                className="text-base text-bgray-600 dark:text-bgray-50  font-medium"
-              >
-                Last Name
-              </label>
-              <input
-                type="text"
-                className="bg-bgray-50 dark:bg-darkblack-500 dark:text-white p-4 rounded-lg h-14 border-0 focus:border focus:border-success-300 focus:ring-0"
-                name="lname"
-              />
-            </div>
-            <div className="flex flex-col gap-2">
-              <label
-                htmlFor="email"
-                className="text-base text-bgray-600 dark:text-bgray-50  font-medium"
-              >
-                Email
-              </label>
-              <input
-                type="text"
-                className="bg-bgray-50 dark:bg-darkblack-500 dark:text-white p-4 rounded-lg h-14 border-0 focus:border focus:border-success-300 focus:ring-0"
-                name="email"
               />
             </div>
             <div className="flex flex-col gap-2">
               <label
                 htmlFor="phone"
-                className="text-base text-bgray-600 dark:text-bgray-50  font-medium"
+                className="text-base text-bgray-600 dark:text-bgray-50 font-medium"
               >
                 Phone Number (Optional)
               </label>
               <input
                 type="text"
-                className="bg-bgray-50 dark:bg-darkblack-500 dark:text-white p-4 rounded-lg h-14 border-0 focus:border focus:border-success-300 focus:ring-0"
                 name="phone"
+                value={user.phone}
+                onChange={handleInputChange}
+                className="bg-bgray-50 dark:bg-darkblack-500 dark:text-white p-4 rounded-lg h-14 border-0 focus:border focus:border-success-300 focus:ring-0"
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label
+                htmlFor="email"
+                className="text-base text-bgray-600 dark:text-bgray-50 font-medium"
+              >
+                Email
+              </label>
+              <input
+                type="text"
+                name="email"
+                value={user.email}
+                onChange={handleInputChange}
+                className="bg-bgray-50 dark:bg-darkblack-500 dark:text-white p-4 rounded-lg h-14 border-0 focus:border focus:border-success-300 focus:ring-0"
               />
             </div>
           </div>
           <h4 className="pt-8 pb-6 text-xl font-bold text-bgray-900 dark:text-white">
-            Personal Address
+            Información General
           </h4>
           <div className="grid 2xl:grid-cols-2 grid-cols-1 gap-6">
             <div className="flex flex-col gap-2">
               <label
-                htmlFor="country"
-                className="text-base text-bgray-600 dark:text-bgray-50  font-medium"
+                htmlFor="cedula"
+                className="text-base text-bgray-600 dark:text-bgray-50 font-medium"
               >
-                Country or Region
+                Cedula
               </label>
               <input
                 type="text"
+                name="cedula"
+                value={user.cedula}
+                onChange={handleInputChange}
                 className="bg-bgray-50 dark:bg-darkblack-500 dark:text-white p-4 rounded-lg h-14 border-0 focus:border focus:border-success-300 focus:ring-0"
-                name="country"
               />
             </div>
             <div className="flex flex-col gap-2">
               <label
-                htmlFor="country"
-                className="text-base text-bgray-600 dark:text-bgray-50  font-medium"
+                htmlFor="rtn"
+                className="text-base text-bgray-600 dark:text-bgray-50 font-medium"
               >
-                City
+                RTN
               </label>
               <input
                 type="text"
-                placeholder="Washington"
+                name="rtn"
+                value={user.rtn}
+                onChange={handleInputChange}
                 className="bg-bgray-50 dark:bg-darkblack-500 dark:text-white p-4 rounded-lg h-14 border-0 focus:border focus:border-success-300 focus:ring-0"
-                name="country"
-              />
-            </div>
-            <div className="flex flex-col gap-2">
-              <label
-                htmlFor="country"
-                className="text-base text-bgray-600 dark:text-bgray-50  font-medium "
-              >
-                Address
-              </label>
-              <input
-                type="text"
-                className="bg-bgray-50 dark:bg-darkblack-500 dark:text-white p-4 rounded-lg h-14 border-0 focus:border focus:border-success-300 focus:ring-0"
-                name="address"
-              />
-            </div>
-            <div className="flex flex-col gap-2">
-              <label
-                htmlFor="postcode"
-                className="text-base text-bgray-600 dark:text-bgray-50  font-medium "
-              >
-                Postal Code
-              </label>
-              <input
-                type="text"
-                className="bg-bgray-50 dark:bg-darkblack-500 dark:text-white p-4 rounded-lg h-14 border-0 focus:border focus:border-success-300 focus:ring-0"
-                name="postcode"
-              />
-            </div>
-          </div>
-          <h4 className="pt-8 pb-6 text-xl font-bold text-bgray-900 dark:text-white">
-            Social Information
-          </h4>
-          <div className="grid 2xl:grid-cols-2 grid-cols-1 gap-6">
-            <div className="flex flex-col gap-2">
-              <label
-                htmlFor="country"
-                className="text-base text-bgray-600 dark:text-bgray-50  font-medium "
-              >
-                Facebook
-              </label>
-              <input
-                type="text"
-                className="bg-bgray-50 dark:bg-darkblack-500 dark:text-white p-4 rounded-lg h-14 border-0 focus:border focus:border-success-300 focus:ring-0"
-                name="fbook"
-              />
-            </div>
-            <div className="flex flex-col gap-2">
-              <label
-                htmlFor="twitter"
-                className="text-base text-bgray-600 dark:text-bgray-50  font-medium "
-              >
-                Twitter
-              </label>
-              <input
-                type="text"
-                className="bg-bgray-50 dark:bg-darkblack-500 dark:text-white p-4 rounded-lg h-14 border-0 focus:border focus:border-success-300 focus:ring-0"
-                name="twitter"
-              />
-            </div>
-            <div className="flex flex-col gap-2">
-              <label
-                htmlFor="linkedin"
-                className="text-base text-bgray-600 dark:text-bgray-50  font-medium "
-              >
-                Linkedin
-              </label>
-              <input
-                type="text"
-                className="bg-bgray-50 dark:bg-darkblack-500 dark:text-white p-4 rounded-lg h-14 border-0 focus:border focus:border-success-300 focus:ring-0"
-                name="linkedin"
-              />
-            </div>
-            <div className="flex flex-col gap-2">
-              <label
-                htmlFor="youtube"
-                className="text-base text-bgray-600 dark:text-bgray-50  font-medium "
-              >
-                Youtube
-              </label>
-              <input
-                type="text"
-                className="bg-bgray-50 dark:bg-darkblack-500 dark:text-white p-4 rounded-lg h-14 border-0 focus:border focus:border-success-300 focus:ring-0"
-                name="youtube"
               />
             </div>
           </div>
@@ -189,4 +202,8 @@ function PersonalInfoFrom() {
   );
 }
 
-export default PersonalInfoFrom;
+PersonalInfoForm.propTypes = {
+  userId: PropTypes.string, // Updated to allow null values
+};
+
+export default PersonalInfoForm;

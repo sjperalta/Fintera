@@ -1,5 +1,5 @@
 import ProtoTypes from "prop-types";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Author from "./Author";
 import NotificationPopup from "./NotificationPopup";
 import ProfilePopup from "./ProfilePopup";
@@ -7,10 +7,29 @@ import ToggleBtn from "./ToggleBtn";
 import ModeToggler from "./ModeToggler";
 function HeaderOne({ handleSidebar }) {
   const [popup, setPopup] = useState(false);
+   const [user, setUser] = useState({ id: 0, full_name: "Guest", role: "Unknown" });
+
+  useEffect(() => {
+    // Fetch user data from localStorage
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        setUser({
+          full_name: parsedUser.full_name || "Guest",
+          role: parsedUser.role || "Unknown",
+          id: parsedUser.id,
+        });
+      } catch (error) {
+        console.error("Error parsing user data from localStorage:", error);
+      }
+    }
+  }, []);
 
   const handlePopup = (name) => {
     setPopup({ [name]: popup?.[name] ? false : true });
   };
+
   return (
     <header className="header-wrapper fixed z-30 hidden w-full md:block">
       <div className="relative flex h-[108px] w-full items-center justify-between bg-white px-10 dark:bg-darkblack-600 2xl:px-[76px]">
@@ -91,11 +110,11 @@ function HeaderOne({ handleSidebar }) {
             </div>
             <div className="hidden h-[48px] w-[1px] bg-bgray-300 dark:bg-darkblack-400 xl:block"></div>
             {/* author */}
-            <Author showProfile={handlePopup} />
+            <Author showProfile={handlePopup} user={user} />
           </div>
           {/* notification ,message, store */}
 
-          <ProfilePopup active={popup?.profile} handlePopup={handlePopup} />
+          <ProfilePopup active={popup?.profile} handlePopup={handlePopup} user={user} />
         </div>
       </div>
     </header>

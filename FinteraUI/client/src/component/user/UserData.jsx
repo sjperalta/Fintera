@@ -1,3 +1,4 @@
+import { useState } from "react";
 import ProtoTypes from "prop-types";
 import { Link } from "react-router-dom";
 import { API_URL } from "../../../config";
@@ -5,7 +6,8 @@ import { getToken } from "../../../auth";
 import inbox1 from "../../assets/images/avatar/profile.png";
 
 function UserData({ userInfo, index}) {
-  const { id, full_name, phone, email, status, role } = userInfo;
+  const { id, full_name, phone, email, status: initialStatus, role } = userInfo;
+  const [status, setStatus] = useState(initialStatus); // Use local state for status
   const token = getToken();
 
   const toggleUserStatus = async () => {
@@ -22,11 +24,33 @@ function UserData({ userInfo, index}) {
         throw new Error('Error toggling user status');
       }
 
-      // Podrías agregar un mecanismo para actualizar la lista de usuarios si es necesario
+      setStatus((prevStatus) => (prevStatus === "active" ? "inactive" : "active"));
       console.log('User status toggled successfully');
       window.location.reload(); // Recargar la página para reflejar el cambio
     } catch (error) {
       console.error('Error:', error);
+    }
+  };
+
+  const resendConfirmation = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/v1/users/${id}/resend_confirmation`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Error resending confirmation email');
+      }
+
+      alert('Confirmation email sent successfully');
+    } catch (error) {
+      console.error('Error:', error);
+      alert(`Failed to send confirmation email: ${error.message}`);
     }
   };
 
@@ -66,27 +90,27 @@ function UserData({ userInfo, index}) {
               checked={status === 'active'}
               onChange={toggleUserStatus} // Cambia el estado cuando el toggle cambia
               role="switch"
-              id="flexSwitchCheckDefault" />
+              id={`flexSwitchCheckDefault-${id}`} />
           <label
               className="inline-block pl-[0.15rem] hover:cursor-pointerml-3 text-sm font-medium text-gray-900 dark:text-gray-300"
               htmlFor="flexSwitchCheckDefault"
-          >Activo</label>
+          >{status}</label>
         </div>
       </td>
       <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
         <div className="flex items-center gap-5">
           <Link
-            to="/settings"
+            to={`/settings/user/${id}`}
             className="text-sm font-medium text-success-300"
           >
             Editar
           </Link>
-          <Link
-            to="/signup"
+          <button
+            onClick={resendConfirmation}
             className="text-sm font-medium text-success-300"
           >
             Invitar
-          </Link>
+          </button>
           <Link
             to="/home-2"
             className="text-sm font-medium text-success-300"

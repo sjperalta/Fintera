@@ -1,26 +1,7 @@
-import { useEffect, useState } from "react";
 import profile from "../../assets/images/avatar/profile-52x52.png";
 import ProtoTypes from "prop-types";
 
-function Author({ showProfile }) {
-  const [user, setUser] = useState({ full_name: "Guest", role: "Unknown" });
-
-  useEffect(() => {
-    // Fetch user data from localStorage
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      try {
-        const parsedUser = JSON.parse(storedUser);
-        setUser({
-          full_name: parsedUser.full_name || "Guest",
-          role: parsedUser.role || "Unknown",
-        });
-      } catch (error) {
-        console.error("Error parsing user data from localStorage:", error);
-      }
-    }
-  }, []);
-
+function Author({ showProfile, user }) {
   return (
     <div
       onClick={() => showProfile("profile")}
