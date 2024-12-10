@@ -1,20 +1,20 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import logoColor from "../../assets/images/logo/logo-color.svg";
 import logoWhite from "../../assets/images/logo/logo-white.svg";
 import PasswordResetModal from "../modal/PasswordResetModal";
-import { API_URL } from './../../../config';
+import AuthContext from '../../context/AuthContext'; 
 
 function LeftSide() {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalData, setModalData] = useState("");
+
   const [email, setEmail] = useState("admin@example.com");
   const [password, setPassword] = useState("superPassword@123");
   const [errors, setErrors] = useState({ email: "", password: "" });
-  const [loading, setLoading] = useState(false); // Para manejar el estado de carga
-  const [apiError, setApiError] = useState(""); // Para manejar errores del API
-
-  const navigate = useNavigate(); // Hook de react-router-dom para redirigir después de iniciar sesión
+  
+  const navigate = useNavigate();
+  const { login, loading, error: apiError } = useContext(AuthContext);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -34,43 +34,13 @@ function LeftSide() {
 
     setErrors(newErrors);
 
-    if (!valid) {
-      return;
+    if (!valid) return;
+
+    const result = await login(email, password);
+    if (result?.success) {
+      navigate("/");
     }
-
-    setLoading(true); // Mostrar indicador de carga
-    setApiError(""); // Limpiar errores anteriores
-
-    try {
-      const response = await fetch(`${API_URL}/api/v1/auth/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        // Almacena el token JWT y la info del usuario si el login fue exitoso
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data.user));
-
-        // Redirigir al usuario a otra página después de iniciar sesión (ej. dashboard)
-        navigate("/");
-      } else {
-        // Si el servidor devuelve un error, mostrar el mensaje de error
-        setApiError(data.errors || "Error al iniciar sesión.");
-      }
-    } catch (error) {
-      setApiError("No se pudo conectar con el servidor. Inténtalo de nuevo más tarde.");
-    } finally {
-      setLoading(false); // Ocultar indicador de carga
-    }
+    // If not success, error is handled by apiError from context
   };
 
   return (

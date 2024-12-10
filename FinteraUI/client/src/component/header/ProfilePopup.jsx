@@ -1,6 +1,7 @@
 import ProtoTypes from "prop-types";
 import { Link } from "react-router-dom";
-function ProfilePopup({ active, user }) {
+
+function ProfilePopup({ active, user, handleLogout }) {
   return (
     <div className="profile-wrapper text-left">
       <div
@@ -58,7 +59,7 @@ function ProfilePopup({ active, user }) {
                 </Link>
               </li>
               <li className="w-full">
-                <Link to="#">
+                <Link to="#" onClick={handleLogout}>
                   <div className="flex items-center space-x-[18px] rounded-lg p-[14px] text-success-300">
                     <div className="w-[20px]">
                       <span>

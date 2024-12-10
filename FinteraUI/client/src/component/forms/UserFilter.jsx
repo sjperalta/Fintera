@@ -1,15 +1,38 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import PropTypes from "prop-types";
 
-function UserFilter() {
+function UserFilter({ searchTerm, role, onSearchChange, onRoleChange }) {
   const [activeFilter, setActiveFilter] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
+  const [term, setTerm] = useState(searchTerm);
+  const [selectedRole, setSelectedRole] = useState(role);
+  const roles = ["All", "User", "Seller", "Admin"]; // Include empty for "All"
 
   const navigate = useNavigate();
 
   const handleActiveFilter = (e) => {
     setActiveFilter(e.target.innerText);
   };
+
+  const handleTermChange = (e) => {
+    setTerm(e.target.value);
+  };
+
+  const handleRoleSelect = (role) => {
+    setSelectedRole(role);
+    onRoleChange(role); // Update parent
+    onSearchChange(term);
+  };
+
+  // On term change, only update search if at least 2 words
+  useEffect(() => {
+    if (term.length >= 3) {
+      onSearchChange(term);
+    } else {
+      onSearchChange(""); // If less than 2 words, reset filter or don't apply
+    }
+  }, [term, onSearchChange]);
 
   return (
     <div className="bg-white dark:bg-darkblack-600 rounded-lg p-4 mb-8 items-center flex">
@@ -42,6 +65,8 @@ function UserFilter() {
           type="text"
           className="border-0 w-full dark:bg-darkblack-600 dark:text-white focus:outline-none focus:ring-0 focus:border-none"
           placeholder="Nombre Cliente, Telefono, Vendedor"
+          value={term}
+          onChange={handleTermChange}
         />
       </div>
       <div className="relative">
@@ -78,8 +103,8 @@ function UserFilter() {
           <input
             type="text"
             className="border-0 dark:bg-darkblack-600 focus:outline-none focus:ring-0 focus:border-none"
-            placeholder="Selecciona Vendedor "
-            onChange={() => {}}
+            placeholder="Selecciona Tipo "
+            onChange={() => { }}
             value={activeFilter ? activeFilter : ""}
           />
           <span className="pr-10">
@@ -101,39 +126,25 @@ function UserFilter() {
           </span>
         </div>
         <div
-          id="locationSelect"
-          className={`rounded-lg shadow-lg w-full bg-white dark:bg-darkblack-500 absolute right-0 z-10 top-full overflow-hidden ${
-            showFilter ? "block" : "hidden"
-          }`}
+          id="sellerUserType"
+          className={`rounded-lg shadow-lg w-full bg-white dark:bg-darkblack-500 absolute right-0 z-10 top-full overflow-hidden ${showFilter ? "block" : "hidden"
+            }`}
         >
           <ul>
-            <li
-              onClick={(e) => {
-                setShowFilter(!showFilter);
-                handleActiveFilter(e);
-              }}
-              className="text-sm text-bgray-900 dark:text-bgray-50 hover:dark:bg-darkblack-600 cursor-pointer px-5 py-2 hover:bg-bgray-100 font-semibold"
-            >
-              Angie Mendoza
-            </li>
-            <li
-              onClick={(e) => {
-                setShowFilter(!showFilter);
-                handleActiveFilter(e);
-              }}
-              className="text-sm text-bgray-900 dark:text-bgray-50 hover:dark:bg-darkblack-600 cursor-pointer px-5 py-2 hover:bg-bgray-100 font-semibold"
-            >
-              Rodolfo Martinez
-            </li>
-            <li
-              onClick={(e) => {
-                setShowFilter(!showFilter);
-                handleActiveFilter(e);
-              }}
-              className="text-sm text-bgray-900 dark:text-bgray-50 hover:dark:bg-darkblack-600 cursor-pointer px-5 py-2 hover:bg-bgray-100 font-semibold"
-            >
-              Otro Vendedor
-            </li>
+            {roles.map((role) => (
+              <li
+                key={role}
+                onClick={(e) => {
+                  setShowFilter(!showFilter);     
+                  handleActiveFilter(e);
+                  const selected = (role === "All") ? "" : role; 
+                  handleRoleSelect(selected);
+                }}
+                className="text-sm text-bgray-900 dark:text-bgray-50 hover:dark:bg-darkblack-600 cursor-pointer px-5 py-2 hover:bg-bgray-100 font-semibold"
+              >
+                {role}
+              </li>
+            ))}
           </ul>
         </div>
       </div>
@@ -157,14 +168,15 @@ function UserFilter() {
           </svg>
         </button>
       </div>
-      <div className="pl-10 md:block hidden">
+      {/* <div className="pl-10 md:block hidden">
         <button
+          onClick={handleSearchSubmit}
           aria-label="none"
           className="py-3 px-10 bg-bgray-600 dark:bg-darkblack-500 rounded-lg text-white font-medium text-sm"
         >
           Buscar
         </button>
-      </div>
+      </div> */}
       <div className="pl-10 md:block hidden">
         <button
           aria-label="none"
@@ -177,5 +189,12 @@ function UserFilter() {
     </div>
   );
 }
+
+UserFilter.propTypes = {
+  searchTerm: PropTypes.string,
+  role: PropTypes.string,
+  onSearchChange: PropTypes.func.isRequired,
+  onRoleChange: PropTypes.func.isRequired
+};
 
 export default UserFilter;

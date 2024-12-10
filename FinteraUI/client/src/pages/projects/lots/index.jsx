@@ -41,7 +41,6 @@ function LotsList() {
 
   // Maneja la reserva de un lote, lo que creará un contrato
   const handleReserve = async (lotId) => {
-    debugger
     try {
       const response = await fetch(`${API_URL}/api/v1/projects/${id}/lots/${lotId}/contracts`, {
         method: 'POST',

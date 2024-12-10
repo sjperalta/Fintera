@@ -26,7 +26,8 @@ function UserData({ userInfo, index}) {
 
       setStatus((prevStatus) => (prevStatus === "active" ? "inactive" : "active"));
       console.log('User status toggled successfully');
-      window.location.reload(); // Recargar la página para reflejar el cambio
+      //window.location.reload(); // Recargar la página para reflejar el cambio
+      //comentado porque la paguina no soporte refresh, esto va a eliminar el local storage
     } catch (error) {
       console.error('Error:', error);
     }

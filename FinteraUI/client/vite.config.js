@@ -56,4 +56,7 @@ const pwaConfig = {
 export default defineConfig({
   basename: "/",
   plugins: [react(), VitePWA(pwaConfig)],
+  optimizeDeps: {
+    include: ['jwt-decode']
+  }
 });

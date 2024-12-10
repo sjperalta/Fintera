@@ -166,7 +166,7 @@ function HeaderTwo({ handleSidebar }) {
                             </div>
                             <div className="flex-1">
                               <span className="text-sm font-semibold">
-                                Log Out
+                                Log Out 2
                               </span>
                             </div>
                           </div>
